@@ -1,4 +1,3 @@
-- template: /templates/skeleton-mapping.calqulus.yaml
 
 ############
 ## SPACES ##
@@ -8,6 +7,19 @@
   alignWithSegment:
     segment: Hips_model
 
+- parameter: VirtualLabOrigin
+  steps:
+    - vector: [Hips_model.x, Hips_model.x, Hips_model.x]
+    - multiply: [$prev, 0]
+
+- segment: VirtualLabSegment
+  steps:
+    - segment:
+      origin: VirtualLabOrigin
+      primaryAxis: [[0,0,0], [1,0,0]]
+      secondaryAxis: [[0,0,0], [0,0,1]]
+      order: yz 
+
 ############
 ## EVENTS ##
 ############
@@ -16,254 +28,7 @@
   where:
     force: any
 
-- event: BOF
-  steps:
-    - import: [0]
-
-- event: EOF
-  steps:
-    - subtract: [$length, 1]
-
-# `Graph event mode`:
-#     No events (Default) [Full measurement]:
-#         BOF and EOF for all graph types
-#     Forceplate events [From forceplates]:
-#         Same events for all graphs based on forceplates data (RON_force, ROFF_force, LON_force and LOFF_force)
-#     Manual events [Manual]:
-#         Same manual events for all graph types (Rstart, Rend, Lstart, Lend)
-#         Different manual events for all graph types (Rstart, RON, Rend, ROFF, Lstart, LON, Lend, LOFF)
-
-# LeftPlotStart ------------
-- event: LeftPlotStart
-  set: left
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: BOF
-      else: LeftPlotStart_prio_1
-
-- event: LeftPlotStart_prio_1
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(LON_force)
-      then: LON_force
-      else: LeftPlotStart_prio_2
-
-- event: LeftPlotStart_prio_2
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && !exists(LON_force) && exists(RON_force)
-      then: [[]]
-      else: LeftPlotStart_prio_3
-
-- event: LeftPlotStart_prio_3
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(LON) && !exists(Lstart)
-      then: LON
-      else: LeftPlotStart_prio_4
-
-- event: LeftPlotStart_prio_4
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(Lstart)
-      then: Lstart
-      else: BOF
-
-# LeftPlotStartForce ------------
-- event: LeftPlotStartForce
-  set: left
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: BOF
-      else: LeftPlotStartForce_prio_1
-
-- event: LeftPlotStartForce_prio_1
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(LON_force)
-      then: LON_force
-      else: LeftPlotStartForce_prio_2
-
-- event: LeftPlotStartForce_prio_2
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(LON)
-      then: LON
-      else: BOF
-
-# LeftPlotEnd ------------
-- event: LeftPlotEnd
-  set: left
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: EOF
-      else: LeftPlotEnd_prio_1
-
-- event: LeftPlotEnd_prio_1
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(LOFF_force)
-      then: LOFF_force
-      else: LeftPlotEnd_prio_2
-
-- event: LeftPlotEnd_prio_2
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && !exists(LOFF_force) && exists(ROFF_force)
-      then: [[]]
-      else: LeftPlotEnd_prio_3
-
-- event: LeftPlotEnd_prio_3
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && !exists(Lend)
-      then: LOFF
-      else: LeftPlotEnd_prio_4
-
-- event: LeftPlotEnd_prio_4
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(Lend)
-      then: Lend
-      else: EOF
-
-# LeftPlotEndForce ------------
-- event: LeftPlotEndForce
-  set: left
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: EOF
-      else: LeftPlotEndForce_prio_1
-
-- event: LeftPlotEndForce_prio_1
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(LOFF_force)
-      then: LOFF_force
-      else: LeftPlotEndForce_prio_2
-
-- event: LeftPlotEndForce_prio_2
-  set: left
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(LOFF)
-      then: LOFF
-      else: EOF
-
-# RightPlotStart ------------
-- event: RightPlotStart
-  set: right
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: BOF
-      else: RightPlotStart_prio_1
-
-- event: RightPlotStart_prio_1
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(RON_force)
-      then: RON_force
-      else: RightPlotStart_prio_2
-
-- event: RightPlotStart_prio_2
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && !exists(RON_force) && exists(LON_force)
-      then: [[]]
-      else: RightPlotStart_prio_3
-
-- event: RightPlotStart_prio_3
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(RON) && !exists(Rstart)
-      then: RON
-      else: RightPlotStart_prio_4
-
-- event: RightPlotStart_prio_4
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual"  || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(Rstart)
-      then: Rstart
-      else: BOF
-
-# RightPlotStartForce ------------
-- event: RightPlotStartForce
-  set: right
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: BOF
-      else: RightPlotStartForce_prio_1
-
-- event: RightPlotStartForce_prio_1
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(RON_force)
-      then: RON_force
-      else: RightPlotStartForce_prio_2
-
-- event: RightPlotStartForce_prio_2
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual"  || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(RON) 
-      then: RON
-      else: BOF
-
-# RightPlotEnd ------------
-- event: RightPlotEnd
-  set: right
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: EOF
-      else: RightPlotEnd_prio_1
-
-- event: RightPlotEnd_prio_1
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(ROFF_force)
-      then: ROFF_force
-      else: RightPlotEnd_prio_2
-
-- event: RightPlotEnd_prio_2
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && !exists(ROFF_force) && exists(LOFF_force)
-      then: [[]]
-      else: RightPlotEnd_prio_3
-
-- event: RightPlotEnd_prio_3
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(ROFF) && !exists(Rend)
-      then: ROFF
-      else: RightPlotEnd_prio_4
-
-- event: RightPlotEnd_prio_4
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(Rend)
-      then: Rend
-      else: EOF
-
-# RightPlotEndForce ------------
-- event: RightPlotEndForce
-  set: right
-  steps:
-    - if: $field(session/Graph event mode) == $"Full measurement" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Full measurement"
-      then: EOF
-      else: RightPlotEndForce_prio_1
-
-- event: RightPlotEndForce_prio_1
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"From forceplates" || $field(functionalAssessmentSubsessions/Graph event mode) == $"From forceplates") && exists(ROFF_force)
-      then: ROFF_force
-      else: RightPlotEndForce_prio_2
-
-- event: RightPlotEndForce_prio_2
-  set: right
-  steps:
-    - if: ($field(session/Graph event mode) == $"Manual" || $field(functionalAssessmentSubsessions/Graph event mode) == $"Manual") && exists(ROFF)
-      then: ROFF
-      else: EOF
+- template: generic-events-kinematics.calqulus.yaml
 
 ############
 ## SERIES ##
@@ -271,1353 +36,1850 @@
 
 - template: /templates/timeseries.calqulus.yaml
 
-# Following pelvis and thorax are required by layout
-# --- Pelvis ---
-
-- parameter: Pelvic Angles
+# --- event detection related parameters ---
+- parameter: Left_MID_FOOT_vel
+  set: left
   where:
-    name: '!Static*'
+    name: ^(Gait|Run|Walk)*
   steps:
-    - angle: Hips_model # angle is calculated relative to axes of global coordinate system, if only single input exists
-      space: VirtualLab # calculate angle relative to virtual lab
-    - multiply: [$prev, [-1, 1, 1]] # invert first component of output
+    - segment: LeftFoot_model
+      space: VirtualLab
+    - convert:
+      from: mm
+      to: m
+    - lowpass:
+      extrapolate: 100
+      cutoff: 16
+      export: Left_MID_FOOT
+    - velocity:
+    - lowpass:
+      extrapolate: 100
+      cutoff: 16
 
-# --- Thorax ---
-
-- parameter: Thorax Angles
+- parameter: Left_MID_FOOT_acc
+  set: left
   where:
-    name: '!Static*'
+    name: ^(Gait|Run|Walk)*
   steps:
-    - angle: [Hips_model, Spine2_model]
-    - multiply: [$prev, [-1, -1, 1]]
+    - segment: LeftFoot_model
+      space: VirtualLab
+    - convert:
+      from: mm
+      to: m
+    - lowpass:
+      extrapolate: 100
+      cutoff: 12
+    - acceleration:
+    - lowpass:
+      extrapolate: 100
+      cutoff: 8 # 12 and 20 can produce LFS_treadmill event slightly too late, nearer to L_MID_FOOT_vel_negative
+
+- parameter: LAnkle
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - vector: [LeftFoot_model.x, LeftFoot_model.y, LeftFoot_model.z]
+
+- parameter: LeftHeelBack
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - if: exists(LHeelBack)
+      then: LHeelBack
+      else: LAnkle
+
+- parameter: LHeelBack_vel
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: LeftHeelBack
+    - velocity:
+
+- parameter: Right_MID_FOOT_vel
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightFoot_model
+      space: VirtualLab
+    - convert:
+      from: mm
+      to: m
+    - lowpass:
+      extrapolate: 100
+      cutoff: 16
+      export: Right_MID_FOOT
+    - velocity:
+    - lowpass:
+      extrapolate: 100
+      cutoff: 16
+
+- parameter: Right_MID_FOOT_acc
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightFoot_model
+      space: VirtualLab
+    - convert:
+      from: mm
+      to: m
+    - lowpass:
+      extrapolate: 100
+      cutoff: 12
+    - acceleration:
+    - lowpass:
+      extrapolate: 100
+      cutoff: 8
+
+- parameter: RAnkle
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - vector: [RightFoot_model.x, RightFoot_model.y, RightFoot_model.z]
+
+- parameter: RightHeelBack
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - if: exists(RHeelBack)
+      then: RHeelBack
+      else: RAnkle
+
+- parameter: RHeelBack_vel
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: RightHeelBack
+    - velocity:
+
+# Midstance event is based on pelvis position wrt foot position
+- parameter: Pelvis_CGPos
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: Hips_model
+      space: VirtualLab
+    - convert:
+      from: mm
+      to: m
+
+# Footstrike
+- parameter: LForefoot2_wrt_Pelvis
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - vector: [LeftToeBase_model.x, LeftToeBase_model.y, LeftToeBase_model.z]
+      space: VirtualLab
+      output: foot
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [foot, pelvis]
+  
+- parameter: LHeelBack_wrt_Pelvis
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: LeftHeelBack => heel
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [heel, pelvis]
+  
+- parameter: RForefoot2_wrt_Pelvis
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - vector: [RightToeBase_model.x, RightToeBase_model.y, RightToeBase_model.z]
+      space: VirtualLab
+      output: foot
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [foot, pelvis]
+  
+- parameter: RHeelBack_wrt_Pelvis
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: RightHeelBack => heel
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [heel, pelvis]
+
+- parameter: Pelvis_COG_range
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Hips_model
+      space: VirtualLab
+    - convert:
+      from: mm
+      to: m
+    - range: $prev.y
+
+# -----------------
+
+# # --- Pelvis ---
+
+- parameter: Left Knee Angles_Velocity
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - velocity: Left Knee Angles => kneeAngleVel
+
+- parameter: Right Knee Angles_Velocity
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - velocity: Right Knee Angles => kneeAngleVel
+
+# # ---
+
+- parameter: Left_KNEE_Lin_Velocity
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftLeg_model
+    - velocity: $prev
+      space: VirtualLab
+    - convert:
+      from: mm/s
+      to: m/s
+
+- parameter: Right_KNEE_Lin_Velocity
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightLeg_model
+    - velocity: $prev
+      space: VirtualLab
+    - convert:
+      from: mm/s
+      to: m/s
+
+# ---
+
+- parameter: L_KNEE_X
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftLeg_model => shank
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [pelvis, shank]
+    - multiply: [$prev.y,-1]
+    - convert:
+      from: mm
+      to: m
+
+- parameter: R_KNEE_X
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightLeg_model
+    - segment: Hips_model
+    - subtract: [Hips_model, RightLeg_model]
+      space: VirtualLab
+    - multiply: [$prev.y,-1]
+    - convert:
+      from: mm
+      to: m
+
+# ---
+
+- parameter: LEFT_KNEE
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftLeg_model => shank
+      space: VirtualLab
+    - convert: shank
+      from: mm
+      to: m
+
+- parameter: RIGHT_KNEE
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightLeg_model => shank
+      space: VirtualLab
+    - convert: shank
+      from: mm
+      to: m
+
+# --- Ankle ---
+
+- parameter: Left Tibial Rotation
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: [LeftFoot_model, LeftLeg_model]
+    - multiply: [$prev, [1, 1, -1]]
+
+- parameter: Right Tibial Rotation
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: [RightFoot_model, RightLeg_model]
+
+# ---
+
+- parameter: Left Tibial Rotation_Velocity
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - velocity: Left Tibial Rotation => tibialRotVel
+
+- parameter: Right Tibial Rotation_Velocity
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - velocity: Right Tibial Rotation => tibialRotVel
+
+# ---
+
+- parameter: Left Ankle Angles_Velocity
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - velocity: Left Ankle Angles => ankleAngleVel
+
+- parameter: Right Ankle Angles_Velocity
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - velocity: Right Ankle Angles => ankleAngleVel
+
+# ---
+
+- parameter: Left Foot Contact Angle_shifted
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: LeftFoot_model => footContactAngle
+      space: VirtualLab
+      axis: ["X"]
+
+- parameter: Right Foot Contact Angle_shifted
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: RightFoot_model => footContactAngle
+      space: VirtualLab
+      axis: ["X"]
+
+# ---
+
+- parameter: L_ANKLE_Y
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftFoot_model => foot
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [pelvis, foot]
+      output: ankle
+
+    - multiply: [ankle.y,[-1]]
+    - convert:
+      from: mm
+      to: m
+      export: L_ANKLE_X
+
+    - convert: ankle.x
+      from: mm
+      to: m
+
+- parameter: R_ANKLE_Y
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - subtract: [Hips_model, RightFoot_model]
+      space: VirtualLab
+      output: ankle
+
+    - multiply: [ankle.y,-1]
+    - convert:
+      from: mm
+      to: m
+      export: R_ANKLE_X
+
+    - convert: ankle.x
+      from: mm
+      to: m
+
+# ---
+
+- parameter: LEFT_ANKLE
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftFoot_model => ankle
+      space: VirtualLab
+    - convert: ankle
+      from: mm
+      to: m
+
+- parameter: RIGHT_ANKLE
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightFoot_model => ankle
+      space: VirtualLab
+    - convert: ankle
+      from: mm
+      to: m
+
+# ---
+
+- parameter: Left_ANKLE_Lin_Velocity
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftFoot_model
+      space: VirtualLab
+    - velocity:
+    - convert:
+      from: mm/s
+      to: m/s
+
+- parameter: Right_ANKLE_Lin_Velocity
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightFoot_model
+      space: VirtualLab
+    - velocity:
+    - convert:
+      from: mm/s
+      to: m/s
+
+# --- Upper body ---
+
+- parameter: Trunk Angles_wrt_LAB
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: Spine2_model
+      space: VirtualLab
+    - multiply: [$prev, [-1,1,1]]
+
+- parameter: Shoulder_Pelvis Angle
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: [Hips_model, Spine2_model]
+
+# --- Arms ---
+
+- parameter: L_ELBOW_RT_PELVIS_Y
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - subtract: [LeftForeArm_model, Hips_model]
+      space: VirtualLab
+      output: elbowPelvis
+    - convert: elbowPelvis.y
+      from: mm
+      to: m
+      export: L_ELBOW_RT_PELVIS_X
+
+    - convert: elbowPelvis.z
+      from: mm
+      to: m
+      export: L_ELBOW_RT_PELVIS_Z
+
+    - multiply: [elbowPelvis.x,-1]
+    - convert:
+      from: mm
+      to: m
+
+- parameter: R_ELBOW_RT_PELVIS_Y
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - subtract: [RightForeArm_model, Hips_model]
+      space: VirtualLab
+      output: elbowPelvis
+    - convert: elbowPelvis.y
+      from: mm
+      to: m
+      export: R_ELBOW_RT_PELVIS_X
+
+    - convert: elbowPelvis.z
+      from: mm
+      to: m
+      export: R_ELBOW_RT_PELVIS_Z
+
+    - multiply: [elbowPelvis.x,-1]
+    - convert:
+      from: mm
+      to: m
+
+# ---
+
+- parameter: L_WRIST_RT_PELVIS_Y
+  set: left
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - subtract: [LeftHand_model, Hips_model]
+      space: VirtualLab
+      output: wristPelvis
+    - convert: wristPelvis.y
+      from: mm
+      to: m
+      export: L_WRIST_RT_PELVIS_X
+
+    - convert: wristPelvis.z
+      from: mm
+      to: m
+      export: L_WRIST_RT_PELVIS_Z
+
+    - multiply: [wristPelvis.x,-1]
+    - convert:
+      from: mm
+      to: m
+
+- parameter: R_WRIST_RT_PELVIS_Y
+  set: right
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - subtract: [RightHand_model, Hips_model]
+      space: VirtualLab
+      output: wristPelvis
+    - convert: wristPelvis.y
+      from: mm
+      to: m
+      export: R_WRIST_RT_PELVIS_X
+
+    - convert: wristPelvis.z
+      from: mm
+      to: m
+      export: R_WRIST_RT_PELVIS_Z
+
+    - multiply: [wristPelvis.x,-1]
+    - convert:
+      from: mm
+      to: m
+
+# --- 
+- parameter: L_ankle_crossing_pelvis
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - convert: pelvis
+      from: mm
+      to: m
+      output: pel
+    - subtract: [pel.y, LEFT_ANKLE.y]
+
+- parameter: R_ankle_crossing_pelvis
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: Hips_model => pelvis
+    - convert: pelvis
+      from: mm
+      to: m
+      space: VirtualLab
+      output: pel
+    - subtract: [pel.y, RIGHT_ANKLE.y]
 
 #############
 ## Metrics ##
 #############
 
-# Find global maximum/minimum/mean/range
-
-# Left ----
-# Pelvis
-- parameter: Left Pelvic Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Pelvic Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Pelvic Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Pelvic Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Pelvic Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Pelvic Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Pelvis Tilt max
+# Treadmill speed (calculated from left foot and right foot at midstance)
+- parameter: left_treadmill_speed
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Pelvic Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - velocity: l_foot => l_foot_vel
+    - multiply: [l_foot_vel.y, -1]
+      output: l_foot_vel_inv
+    - mean: l_foot_vel_inv@L_MID_STANCE
 
-- parameter: Pelvis Tilt min
+- parameter: right_treadmill_speed
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Pelvic Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - velocity: r_foot => r_foot_vel
+    - multiply: [r_foot_vel.y, -1]
+      output: r_foot_vel_inv
+    - mean: r_foot_vel_inv@R_MID_STANCE
 
-- parameter: Pelvis Tilt range
+- parameter: treadmill_speed
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - subtract: [Pelvis Tilt max, Pelvis Tilt min]
+    - concatenate: [left_treadmill_speed, right_treadmill_speed]
+    - mean:
+    - convert:
+      from: mm/s
+      to: m/s
 
-# Hips
-- parameter: Left Hip Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Hip Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Hip Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Hip Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Hip Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Hip Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Hip Flex max
+- parameter: actual_running_speed_ms_treadmill
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Hip Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
+    - velocity: Hips_model => pelvis_vel
+      space: VirtualLab
+    - convert: pelvis_vel
+      from: mm/s
+      to: m/s
+    - add: [$prev, treadmill_speed]
+      output: pelvis_vel_adj
+    - mean: pelvis_vel_adj.y
+      export: walking_speed_treadmill
 
-- parameter: Left Hip Flex min
+- parameter: actual_running_speed_ms_overground
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Hip Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
-
-- parameter: Left Hip Flex range
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - subtract: [Left Hip Flex max, Left Hip Flex min]
-
-# Knees
-- parameter: Left Knee Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Knee Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Knee Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Knee Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Knee Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Knee Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Knee Flex max
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - import: Left Knee Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
-
-- parameter: Left Knee Flex min
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - import: Left Knee Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
-
-- parameter: Left Knee Flex range
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - subtract: [Left Knee Flex max, Left Knee Flex min]
-
-# Ankles
-- parameter: Left Ankle Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Ankle Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Ankle Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Ankle Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Ankle Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Ankle Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Ankle Flex max
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - import: Left Ankle Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
-
-- parameter: Left Ankle Flex min
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - import: Left Ankle Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
-
-- parameter: Left Ankle Flex range
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - subtract: [Left Ankle Flex max, Left Ankle Flex min]
-
-# Feet
-- parameter: Left Foot Pitch Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Foot Pitch Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Foot Pitch Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Foot Pitch Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Foot Pitch Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Foot Pitch Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-# Copy of previous signal for compatibility with report layout
-- parameter: Left Foot Progression_max
-  set: left
-  steps:
-    - import: Left Foot Pitch Angles_max
-
-- parameter: Left Foot Progression_min
-  set: left
-  steps:
-    - import: Left Foot Pitch Angles_min
-
-- parameter: Left Foot Progression_mean
-  set: left
-  steps:
-    - import: Left Foot Pitch Angles_mean
-
-# Shoulders Girdle
-- parameter: Left Shoulder Girdle Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Shoulder Girdle Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Shoulder Girdle Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Shoulder Girdle Protraction_max
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.z
-
-- parameter: Left Shoulder Girdle Protraction_min
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.z
-
-- parameter: Left Shoulder Girdle Protraction_mean
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: $prev.z
-
-- parameter: Left Shoulder Girdle Protraction_range
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - subtract: [Left Shoulder Girdle Protraction_max, Left Shoulder Girdle Protraction_min]
-
-- parameter: Left Shoulder Girdle Elevation_max
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.y
-
-- parameter: Left Shoulder Girdle Elevation_min
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.y
-
-- parameter: Left Shoulder Girdle Elevation_mean
-  where:
-    name: '!Static*'
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Girdle Angles, LeftPlotStart, LeftPlotEnd]
+    - velocity: Hips_model
+      space: VirtualLab
+    - convert:
+      from: mm/s
+      to: m/s
     - mean: $prev.y
+      export: walking_speed_overground
 
-- parameter: Left Shoulder Girdle Elevation_range
+- parameter: actual_running_speed_ms
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - subtract: [Left Shoulder Girdle Elevation_max, Left Shoulder Girdle Elevation_min]
+    - if: Pelvis_COG_range > 1
+      then: actual_running_speed_ms_overground
+      else: actual_running_speed_ms_treadmill
 
-# Shoulders
-- parameter: Left Shoulder Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Shoulder Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Shoulder Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Shoulder Ang Vel_max
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Ang Vel, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Shoulder Ang Vel_min
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Ang Vel, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Shoulder Ang Vel_mean
-  set: left
-  steps:
-    - eventMask: [Left Shoulder Ang Vel, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Shoulder Flex max
+- parameter: walking_speed # for FA report
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Shoulder Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
+    - if: Pelvis_COG_range > 1
+      then: walking_speed_overground
+      else: walking_speed_treadmill
 
-- parameter: Left Shoulder Flex min
+# Seconds per meter, to be displayed as minutes per kilometer.
+- parameter: seconds_per_meter
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Shoulder Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
+    - divide: [1, actual_running_speed_ms]
 
-- parameter: Left Shoulder Flex range
+# Statures per second
+# calculated as average speed divided by the subject height 
+- parameter: Statures_Per_Second
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - subtract: [Left Shoulder Flex max, Left Shoulder Flex min]
+    - divide: [actual_running_speed_ms, "$field(Height; measurement; numeric)"]
 
-# Elbows
-- parameter: Left Elbow Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Elbow Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Elbow Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Elbow Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Elbow Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Elbow Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Elbow Flex max
+# Stride angle
+- parameter: Left Stride Angle@max
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Elbow Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
-
-- parameter: Left Elbow Flex min
+    - segment: LeftUpLeg_model => l_thigh
+    - segment: RightUpLeg_model => r_thigh
+    - jointAngle: [l_thigh, r_thigh]
+      export: Left Stride Angle
+    - eventMask: [$prev, LFS, LFS]
+      output: angle
+    - max: angle.x
+     
+- parameter: Right Stride Angle@max
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Elbow Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
+    - segment: LeftUpLeg_model => l_thigh
+    - segment: RightUpLeg_model => r_thigh
+    - jointAngle: [r_thigh, l_thigh]
+      export: Right Stride Angle
+    - eventMask: [$prev, RFS, RFS]
+      output: angle
+    - max: angle.x
 
-- parameter: Left Elbow Flex range
+# Steps/min
+# 60 / ((left mean step time + right mean step time) / 2)
+- parameter: Steps_Per_Minute_Mean
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - subtract: [Left Elbow Flex max, Left Elbow Flex min]
+  - eventDuration: [RFS, LFS]
+    export: Left_Step_Time
+  - eventDuration: [LFS, RFS]
+    export: Right_Step_Time
+  - mean: Left_Step_Time => Left_Step_Time_mean
+  - divide: [60, Left_Step_Time_mean]
+    export: Left_Steps_Per_Minute_Mean
+  - mean: Right_Step_Time => Right_Step_Time_mean
+  - divide: [60, Right_Step_Time_mean]
+    export: Right_Steps_Per_Minute_Mean
+  - concatenate: [Left_Steps_Per_Minute_Mean, Right_Steps_Per_Minute_Mean]
+  - mean:
 
-# Wrists
-- parameter: Left Wrist Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Wrist Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Wrist Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Wrist Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Wrist Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Wrist Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Wrist Flex max
+# Step length
+- parameter: Right_Step_Length_Mean_treadmill
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Wrist Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - subtract: [r_foot.y@RFS, l_foot.y@LFS]
+      frameSequenceOrder: reverse
+    - convert:
+      from: mm
+      to: m
+      output: Step_Length
+    - multiply: [actual_running_speed_ms, Right_Step_Time]
+      output: belt_shift
+    - add: [Step_Length, belt_shift]
 
-- parameter: Left Wrist Flex min
+- parameter: Right_Step_Length_Mean_overground
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Left Wrist Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - subtract: [r_foot.y@RFS, l_foot.y@LFS]
+      frameSequenceOrder: reverse
+    - convert:
+      from: mm
+      to: m
 
-- parameter: Left Wrist Flex range
+- parameter: Left_Step_Length_Mean_treadmill
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - subtract: [Left Wrist Flex max, Left Wrist Flex min]
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - subtract: [l_foot.y@LFS, r_foot.y@RFS]
+      frameSequenceOrder: reverse
+    - convert:
+      from: mm
+      to: m
+      output: Step_Length
+    - multiply: [actual_running_speed_ms, Left_Step_Time]
+      output: belt_shift
+    - add: [Step_Length, belt_shift]
 
-# Thorax
-- parameter: Left Thorax Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Thorax Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Thorax Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Thorax Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Thorax Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Thorax Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Left Thorax_Lab Angles_max
-  set: left
-  steps:
-    - eventMask: [Left Thorax_Lab Angles, LeftPlotStart, LeftPlotEnd]
-    - max: 
-
-- parameter: Left Thorax_Lab Angles_min
-  set: left
-  steps:
-    - eventMask: [Left Thorax_Lab Angles, LeftPlotStart, LeftPlotEnd]
-    - min: 
-
-- parameter: Left Thorax_Lab Angles_mean
-  set: left
-  steps:
-    - eventMask: [Left Thorax_Lab Angles, LeftPlotStart, LeftPlotEnd]
-    - mean: 
-
-- parameter: Thorax Forward Tilt max
+- parameter: Left_Step_Length_Mean_overground
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Thorax Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - max: $prev.x
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - subtract: [l_foot.y@LFS, r_foot.y@RFS]
+      frameSequenceOrder: reverse
+    - convert:
+      from: mm
+      to: m
 
-- parameter: Thorax Forward Tilt min
+- parameter: Right_Step_Length_Mean
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Thorax Angles
-    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
-    - min: $prev.x
+    - if: Pelvis_COG_range > 1
+      then: Right_Step_Length_Mean_overground
+      else: Right_Step_Length_Mean_treadmill
+      export: Right_Step_Length # for FA Running
 
-- parameter: Thorax Forward Tilt range
+- parameter: Left_Step_Length_Mean
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - subtract: [Thorax Forward Tilt max, Thorax Forward Tilt min]
+    - if: Pelvis_COG_range > 1
+      then: Left_Step_Length_Mean_overground
+      else: Left_Step_Length_Mean_treadmill
+      export: Left_Step_Length # for FA Running
 
-# Right ---
-# Pelvis
-- parameter: Right Pelvic Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Pelvic Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Pelvic Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Pelvic Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Pelvic Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Pelvic Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-# Hips
-- parameter: Right Hip Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Hip Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Hip Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Hip Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Hip Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Hip Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Hip Flex max
+- parameter: Step_Length_Mean_MEAN
   where:
-    name: '!Static*'
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Right Hip Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - max: $prev.x
-
-- parameter: Right Hip Flex min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Hip Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - min: $prev.x
-
-- parameter: Right Hip Flex range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Hip Flex max, Right Hip Flex min]
-
-# Knees
-- parameter: Right Knee Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Knee Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Knee Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Knee Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Knee Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Knee Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Knee Flex max
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Knee Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - max: $prev.x
-
-- parameter: Right Knee Flex min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Knee Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - min: $prev.x
-
-- parameter: Right Knee Flex range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Knee Flex max, Right Knee Flex min]
-
-# Ankles
-- parameter: Right Ankle Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Ankle Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Ankle Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Ankle Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Ankle Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Ankle Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Ankle Flex max
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Ankle Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - max: $prev.x
-
-- parameter: Right Ankle Flex min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Ankle Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - min: $prev.x
-
-- parameter: Right Ankle Flex range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Ankle Flex max, Right Ankle Flex min]
-
-# Feet
-- parameter: Right Foot Pitch Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Foot Pitch Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Foot Pitch Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Foot Pitch Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Foot Pitch Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Foot Pitch Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-# Copy of previous signal for compatibility with report layout
-- parameter: Right Foot Progression_max
-  set: right
-  steps:
-    - import: Right Foot Pitch Angles_max
-
-- parameter: Right Foot Progression_min
-  set: right
-  steps:
-    - import: Right Foot Pitch Angles_min
-
-- parameter: Right Foot Progression_mean
-  set: right
-  steps:
-    - import: Right Foot Pitch Angles_mean
-
-# Shoulders Girdle
-- parameter: Right Shoulder Girdle Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Shoulder Girdle Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Shoulder Girdle Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Shoulder Girdle Protraction_max
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - max: $prev.z
-
-- parameter: Right Shoulder Girdle Protraction_min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - min: $prev.z
-
-- parameter: Right Shoulder Girdle Protraction_mean
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - mean: $prev.z
-
-- parameter: Right Shoulder Girdle Protraction_range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Shoulder Girdle Protraction_max, Right Shoulder Girdle Protraction_min]
-
-- parameter: Right Shoulder Girdle Elevation_max
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - max: $prev.y
-
-- parameter: Right Shoulder Girdle Elevation_min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - min: $prev.y
-
-- parameter: Right Shoulder Girdle Elevation_mean
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Girdle Angles, RightPlotStart, RightPlotEnd]
-    - mean: $prev.y
-
-- parameter: Right Shoulder Girdle Elevation_range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Shoulder Girdle Elevation_max, Right Shoulder Girdle Elevation_min]
-
-# Shoulders
-- parameter: Right Shoulder Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Shoulder Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Shoulder Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Shoulder Ang Vel_max
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Ang Vel, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Shoulder Ang Vel_min
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Ang Vel, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Shoulder Ang Vel_mean
-  set: right
-  steps:
-    - eventMask: [Right Shoulder Ang Vel, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Shoulder Flex max
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Shoulder Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - max: $prev.x
-
-- parameter: Right Shoulder Flex min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Shoulder Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - min: $prev.x
-
-- parameter: Right Shoulder Flex range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Shoulder Flex max, Right Shoulder Flex min]
-
-# Elbows
-- parameter: Right Elbow Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Elbow Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Elbow Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Elbow Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Elbow Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Elbow Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Elbow Flex max
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Elbow Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - max: $prev.x
-
-- parameter: Right Elbow Flex min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Elbow Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - min: $prev.x
-
-- parameter: Right Elbow Flex range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Elbow Flex max, Right Elbow Flex min]
-
-# Wrists
-- parameter: Right Wrist Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Wrist Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Wrist Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Wrist Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Wrist Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Wrist Angles, RightPlotStart, RightPlotEnd]
-    - mean: 
-
-- parameter: Right Wrist Flex max
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Wrist Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - max: $prev.x
-
-- parameter: Right Wrist Flex min
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - import: Right Wrist Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - min: $prev.x
-
-- parameter: Right Wrist Flex range
-  where:
-    name: '!Static*'
-  set: right
-  steps:
-    - subtract: [Right Wrist Flex max, Right Wrist Flex min]
-
-# Thorax
-- parameter: Right Thorax Angles_max
-  set: right
-  steps:
-    - eventMask: [Right Thorax Angles, RightPlotStart, RightPlotEnd]
-    - max: 
-
-- parameter: Right Thorax Angles_min
-  set: right
-  steps:
-    - eventMask: [Right Thorax Angles, RightPlotStart, RightPlotEnd]
-    - min: 
-
-- parameter: Right Thorax Angles_mean
-  set: right
-  steps:
-    - eventMask: [Right Thorax Angles, RightPlotStart, RightPlotEnd]
+    - concatenate: [Right_Step_Length_Mean, Left_Step_Length_Mean]
     - mean:
 
-- parameter: Right Thorax_Lab Angles_max
-  set: right
+# Stride length
+- parameter: Right_Stride_Length_Mean_treadmill
+  where:
+    name: ^(Gait|Run|Walk)*
   steps:
-    - eventMask: [Right Thorax_Lab Angles, RightPlotStart, RightPlotEnd]
-    - max: 
+    - segment: RightFoot_model => foot
+      space: VirtualLab
+    - eventDuration: [RFS, RFS]
+      export: right_stride_time
+    - diff: foot.y@RFS
+    - convert:
+      from: mm
+      to: m
+      output: strideLength
+    - multiply: [actual_running_speed_ms, right_stride_time]
+      output: belt_shift
+    - add: [strideLength, belt_shift]
 
-- parameter: Right Thorax_Lab Angles_min
-  set: right
+- parameter: Right_Stride_Length_Mean_overground
+  where:
+    name: ^(Gait|Run|Walk)*
   steps:
-    - eventMask: [Right Thorax_Lab Angles, RightPlotStart, RightPlotEnd]
-    - min: 
+    - segment: RightFoot_model => foot
+      space: VirtualLab
+    - eventDuration: [RFS, RFS]
+      export: right_stride_time
+    - diff: foot.y@RFS
+    - convert:
+      from: mm
+      to: m
 
-- parameter: Right Thorax_Lab Angles_mean
-  set: right
+- parameter: Left_Stride_Length_Mean_treadmill
+  where:
+    name: ^(Gait|Run|Walk)*
   steps:
-    - eventMask: [Right Thorax_Lab Angles, RightPlotStart, RightPlotEnd]
+    - segment: LeftFoot_model => foot
+      space: VirtualLab
+    - eventDuration: [LFS, LFS]
+      export: left_stride_time
+    - diff: foot.y@LFS
+    - convert:
+      from: mm
+      to: m
+      output: strideLength
+    - multiply: [actual_running_speed_ms, left_stride_time]
+      output: belt_shift
+    - add: [strideLength, belt_shift]
+
+- parameter: Left_Stride_Length_Mean_overground
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftFoot_model => foot
+      space: VirtualLab
+    - eventDuration: [LFS, LFS]
+      export: left_stride_time
+    - diff: foot.y@LFS
+    - convert:
+      from: mm
+      to: m
+
+- parameter: Right_Stride_Length_Mean
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - if: Pelvis_COG_range > 1
+      then: Right_Stride_Length_Mean_overground
+      else: Right_Stride_Length_Mean_treadmill
+      export: Right_Stride_Length # for FA Running
+
+- parameter: Left_Stride_Length_Mean
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - if: Pelvis_COG_range > 1
+      then: Left_Stride_Length_Mean_overground
+      else: Left_Stride_Length_Mean_treadmill
+      export: Left_Stride_Length # for FA Running
+
+- parameter: Stride_Length_Mean
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - concatenate: [Right_Stride_Length_Mean, Left_Stride_Length_Mean]
+    - mean:
+      export: Stride_Length # for FA Running
+
+# Stride width
+# note V3D script is calculating it using stride vector
+- parameter: Right_Stride_Width_Mean
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - subtract: [r_foot.x@RFS, l_foot.x@LFS]
+      frameSequenceOrder: reverse
+    - abs:
+
+- parameter: Left_Stride_Width_Mean
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - subtract: [l_foot.x@LFS, r_foot.x@RFS]
+      frameSequenceOrder: reverse
+    - abs:
+
+- parameter: Stride_Width_Mean
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - concatenate: [Right_Stride_Width_Mean, Left_Stride_Width_Mean]
+    - mean:
+    - convert:
+      from: mm
+      to: m
+      export: Stride_Width # for FA Running
+
+# Cycle time # for FA Running
+- parameter: Cycle_Time
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - divide: [Left_Stride_Length_Mean, left_stride_time]
+      output: left
+    - divide: [Right_Stride_Length_Mean, right_stride_time]
+      output: right
+    - concatenate: [left, right]
     - mean:
 
-# Head
-- parameter: Head Forward Tilt max
+# Stance time # for FA Running
+- parameter: Left_Stance_Time
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Head Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - max: $prev.x
-
-- parameter: Head Forward Tilt min
+    - eventDuration: [LFS, LTO]
+    
+- parameter: Right_Stance_Time
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - import: Head Angles
-    - eventMask: [$prev, RightPlotStart, RightPlotEnd]
-    - min: $prev.x
+    - eventDuration: [RFS, RTO]
 
-- parameter: Head Forward Tilt range
+# Swing time # for FA Running
+- parameter: Left_Swing_Time
   where:
-    name: '!Static*'
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-    - subtract: [Head Forward Tilt max, Head Forward Tilt min]
+    - eventDuration: [LTO, LFS]
 
-# Kinetics ---
-# Left
-- parameter: Left Hip Moment_max
+- parameter: Right_Swing_Time
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Left Hip Moment
+    - eventDuration: [RTO, RFS]
 
-- parameter: Left Knee Moment_max
+# Strides per minute
+- parameter: Left_Strides_Per_Minute_Mean
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Left Knee Moment
+    - divide: [60, left_stride_time]
+    - mean:
 
-- parameter: Left Ankle Moment_max
+- parameter: Right_Strides_Per_Minute_Mean
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Left Ankle Moment
+    - divide: [60, right_stride_time]
+    - mean:
 
-- parameter: Left Hip Power_max
+# Vertical pelvis movement
+- parameter: Pelvis_Height_RANGE
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Left Hip Power
+    - eventMask: [Hips_model, LFS, RFS]
+      output: mask
+    - max: mask.z => max
+    - min: mask.z => min
+    - subtract: [max, min]
+    - convert:
+      from: mm
+      to: m
 
-- parameter: Left Knee Power_max
+# Contact time
+- parameter: Stance_Time_Mean_MEAN
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Left Knee Moment
+  - eventDuration: [LFS, LTO]
+    export: Left_Stance_Time_Mean
+  - eventDuration: [RFS, RTO]
+    export: Right_Stance_Time_Mean
+  - mean: Left_Stance_Time_Mean => left_contact_time_mean
+  - mean: Right_Stance_Time_Mean => right_contact_time_mean
+  - concatenate: [left_contact_time_mean, right_contact_time_mean]
+  - mean:
 
-- parameter: Left Ankle Power_max
+# Flight time
+- parameter: Flight_Time_Mean_MEAN
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: Run*
   steps:
-   - max: Left Ankle Moment
+  - eventDuration: [LTO, RFS]
+    export: Flight_time_LTO_RFS
+  - eventDuration: [RTO, LFS]
+    export: Flight_time_RTO_LFS
+  - mean: Flight_time_LTO_RFS => left_flight_time_mean
+  - mean: Flight_time_RTO_LFS => right_flight_time_mean
+  - concatenate: [left_flight_time_mean, right_flight_time_mean]
+  - mean:
 
-- parameter: Left GRF_max
+# Flight time/contact time ratio
+- parameter: Swing_Contact_Ratio
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: Run*
   steps:
-   - max: Left GRF
+  - divide: [Flight_Time_Mean_MEAN, Stance_Time_Mean_MEAN]
 
-- parameter: Left Hip Moment_min
+- parameter: Left_Swing_Contact_Ratio
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: Run*
   steps:
-   - min: Left Hip Moment
+  - divide: [Flight_time_LTO_RFS, Left_Stance_Time_Mean]
 
-- parameter: Left Knee Moment_min
+- parameter: Right_Swing_Contact_Ratio
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: Run*
   steps:
-   - min: Left Knee Moment
+  - divide: [Flight_time_RTO_LFS, Right_Stance_Time_Mean]
 
-- parameter: Left Ankle Moment_min
-  where:
-    name: '!Static*'
-    force: left
+# Foot position at FS
+- parameter: Left_HEEL_PELVIS_MEAN_X
   set: left
-  steps:
-   - min: Left Ankle Moment
-
-- parameter: Left Hip Power_min
   where:
-    name: '!Static*'
-    force: left
-  set: left
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Left Hip Power
+    - segment: LeftFoot_model => l_foot
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [l_foot.y, pelvis.y]
+    - convert:
+      from: mm
+      to: m
+      output: heel_pelvis
+    - import: heel_pelvis@LFS
+      export: LHEEL_PELVIS_X 
+    - mean: heel_pelvis@LFS
 
-- parameter: Left Knee Power_min
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - min: Left Knee Moment
-
-- parameter: Left Ankle Power_min
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - min: Left Ankle Moment
-
-- parameter: Left GRF_min
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - min: Left GRF
-
-- parameter: Left Hip Moment_mean
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - mean: Left Hip Moment
-
-- parameter: Left Knee Moment_mean
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - mean: Left Knee Moment
-
-- parameter: Left Ankle Moment_mean
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - mean: Left Ankle Moment
-
-- parameter: Left Hip Power_mean
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - mean: Left Hip Power
-
-- parameter: Left Knee Power_mean
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - mean: Left Knee Moment
-
-- parameter: Left Ankle Power_mean
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - mean: Left Ankle Moment
-
-- parameter: Left GRF_mean
-  where:
-    name: '!Static*'
-    force: left
-  set: left
-  steps:
-   - mean: Left GRF
-
-# Right
-- parameter: Right Hip Moment_max
-  where:
-    name: '!Static*'
-    force: right
+- parameter: Right_HEEL_PELVIS_MEAN_X
   set: right
-  steps:
-   - max: Right Hip Moment
-
-- parameter: Right Knee Moment_max
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Right Knee Moment
+    - segment: RightFoot_model => r_foot
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [r_foot.y, pelvis.y]
+    - convert:
+      from: mm
+      to: m
+      output: heel_pelvis
+    - import: heel_pelvis@RFS
+      export: RHEEL_PELVIS_X 
+    - mean: heel_pelvis@RFS
 
-- parameter: Right Ankle Moment_max
+# Number of steps
+- parameter: Cycle_Time_Count
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Right Ankle Moment
+  - eventDuration: [LFS, RFS]
+  - count: $prev => l_to_r_count
+  - eventDuration: [RFS, LFS]
+  - count: $prev => r_to_l_count
+  - add: [l_to_r_count, r_to_l_count]
 
-- parameter: Right Hip Power_max
+# --- Pelvis angles ---
+# at FS
+- parameter: Left Pelvic Angles@LFS
+  set: left
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Right Hip Power
+    - import: Left Pelvic Angles@LFS
 
-- parameter: Right Knee Power_max
-  where:
-    name: '!Static*'
-    force: right
+- parameter: Right Pelvic Angles@RFS
   set: right
+  where:
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Right Knee Moment
+    - import: Right Pelvic Angles@RFS
 
-- parameter: Right Ankle Power_max
+# max during stance
+- parameter: Left Pelvic Angles_MAX_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Right Ankle Moment
+    - eventMask: [Left Pelvic Angles, LFS, LTO]
+      truncate: true
+    - max:
 
-- parameter: Right GRF_max
+- parameter: Right Pelvic Angles_MAX_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - max: Right GRF
+    - eventMask: [Right Pelvic Angles, RFS, RTO]
+      truncate: true
+    - max:
 
-- parameter: Right Hip Moment_min
+# min during stance
+- parameter: Left Pelvic Angles_MIN_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Right Hip Moment
+    - eventMask: [Left Pelvic Angles, LFS, LTO]
+      truncate: true
+    - min:
 
-- parameter: Right Knee Moment_min
+- parameter: Right Pelvic Angles_MIN_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Right Knee Moment
+    - eventMask: [Right Pelvic Angles, RFS, RTO]
+      truncate: true
+    - min:
 
-- parameter: Right Ankle Moment_min
+# max during stride
+- parameter: Left Pelvic Angles_MAX_stride
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Right Ankle Moment
+    - eventMask: [Left Pelvic Angles, LFS, LFS]
+      truncate: true
+    - max:
 
-- parameter: Right Hip Power_min
+- parameter: Right Pelvic Angles_MAX_stride
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Right Hip Power
+    - eventMask: [Right Pelvic Angles, RFS, RFS]
+      truncate: true
+    - max:
 
-- parameter: Right Knee Power_min
+# --- Hip angles ---
+# at FS
+- parameter: L_HIP_ANGLE@LFS
+  set: left
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Right Knee Moment
+    - import: Left Hip Angles@LFS
 
-- parameter: Right Ankle Power_min
-  where:
-    name: '!Static*'
-    force: right
+- parameter: R_HIP_ANGLE@RFS
   set: right
+  where:
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Right Ankle Moment
+    - import: Right Hip Angles@RFS
 
-- parameter: Right GRF_min
+# max during stance
+- parameter: Left Hip Angles_MAX_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - min: Right GRF
+    - eventMask: [Left Hip Angles, LFS, LTO]
+      truncate: true
+    - max:
 
-- parameter: Right Hip Moment_mean
+- parameter: Right Hip Angles_MAX_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - mean: Right Hip Moment
+    - eventMask: [Right Hip Angles, RFS, RTO]
+      truncate: true
+    - max:
 
-- parameter: Right Knee Moment_mean
+# min during stance
+- parameter: Left Hip Angles_MIN_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - mean: Right Knee Moment
+    - eventMask: [Left Hip Angles, LFS, LTO]
+      truncate: true
+    - min:
 
-- parameter: Right Ankle Moment_mean
+- parameter: Right Hip Angles_MIN_stance
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - mean: Right Ankle Moment
+    - eventMask: [Right Hip Angles, RFS, RTO]
+      truncate: true
+    - min:
 
-- parameter: Right Hip Power_mean
+# max during stride
+- parameter: Left Hip Angles_MAX_stride
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - mean: Right Hip Power
+    - eventMask: [Left Hip Angles, LFS, LFS]
+      truncate: true
+    - max:
 
-- parameter: Right Knee Power_mean
+- parameter: Right Hip Angles_MAX_stride
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - mean: Right Knee Moment
+    - eventMask: [Right Hip Angles, RFS, RFS]
+      truncate: true
+    - max:
 
-- parameter: Right Ankle Power_mean
+# --- Knee angles ---
+# at FS
+- parameter: L_KNEE_ANG@LFS
+  set: left
   where:
-    name: '!Static*'
-    force: right
-  set: right
+    name: ^(Gait|Run|Walk)*
   steps:
-   - mean: Right Ankle Moment
+    - import: Left Knee Angles@LFS
 
-- parameter: Right GRF_mean
-  where:
-    name: '!Static*'
-    force: right
+- parameter: R_KNEE_ANG@RFS
   set: right
+  where:
+    name: ^(Gait|Run|Walk)*
   steps:
-   - mean: Right GRF
+    - import: Right Knee Angles@RFS
+
+# max during stance
+- parameter: Left Knee Angles_MAX_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Left Knee Angles, LFS, LTO]
+      truncate: true
+    - max:
+
+- parameter: Right Knee Angles_MAX_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Right Knee Angles, RFS, RTO]
+      truncate: true
+    - max:
+
+# min during stance
+- parameter: Left Knee Angles_MIN_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Left Knee Angles, LFS, LTO]
+      truncate: true
+    - min:
+
+- parameter: Right Knee Angles_MIN_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Right Knee Angles, RFS, RTO]
+      truncate: true
+    - min:
+
+# max during stride
+- parameter: Left Knee Angles_MAX
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Left Knee Angles, LFS, LFS]
+      truncate: true
+    - max:
+
+- parameter: Right Knee Angles_MAX
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Right Knee Angles, RFS, RFS]
+      truncate: true
+    - max:
+
+# --- Ankle angles ---
+# max during stance
+- parameter: Left Ankle Angles_MAX_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Left Ankle Angles, LFS, LTO]
+      truncate: true
+    - max:
+
+- parameter: Right Ankle Angles_MAX_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Right Ankle Angles, RFS, RTO]
+      truncate: true
+    - max:
+
+# min during stance
+- parameter: Left Ankle Angles_MIN_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Left Ankle Angles, LFS, LTO]
+      truncate: true
+    - min:
+
+- parameter: Right Ankle Angles_MIN_stance
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Right Ankle Angles, RFS, RTO]
+      truncate: true
+    - min:
+
+# Foot wrt lab at footstrike
+- parameter: L_FOOT_CONTACT_ANGLE@LFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Foot Contact Angle_shifted@LFS
+
+- parameter: R_FOOT_CONTACT_ANGLE@RFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Foot Contact Angle_shifted@RFS
+
+# Time between max stride angle and max knee flexion
+- parameter: L_PEAK_KNEE_ANGLE_to_Left Stride Angle_max
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [L_peak_knee_flex, L_stride_angle_max]
+
+- parameter: R_PEAK_KNEE_ANGLE_to_Right Stride Angle_max
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [R_peak_knee_flex, R_stride_angle_max]
+
+# Time from max hip flexion to footstrike
+- parameter: L_peak_hip_flexion_cycle_to_LFS_L_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [L_peak_hip_flex, LFS]
+
+- parameter: R_peak_hip_flexion_cycle_to_RFS_R_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [R_peak_hip_flex, RFS]
+
+# Time from max knee flexion to ankle cross
+- parameter: L_PEAK_KNEE_ANGLE_to_L_Ankle_cross_L_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [L_peak_knee_flex, L_Ankle_cross]
+
+- parameter: R_PEAK_KNEE_ANGLE_to_R_Ankle_cross_R_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [R_peak_knee_flex, R_Ankle_cross]
+
+# Time from toe off to max hip flexion
+- parameter: LTO_to_L_peak_hip_flexion_L_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [LTO, L_peak_hip_flex]
+
+- parameter: RTO_to_R_peak_hip_flexion_R_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [RTO, R_peak_hip_flex]
+
+# Time from toe off to hip flexion initiation
+- parameter: LTO_to_L_peak_hip_extension_stride_L_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [LTO, L_peak_hip_extension_stride]
+
+- parameter: RTO_to_R_peak_hip_extension_stride_R_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [RTO, R_peak_hip_extension_stride]
+
+# Time from toe off to knee flexion initiation
+- parameter: LTO_to_L_peak_knee_extension_stride_L_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [LTO, L_peak_knee_extension_stride]
+
+- parameter: RTO_to_R_peak_knee_extension_stride_R_CYCLE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventDuration: [RTO, R_peak_knee_extension_stride]
+
+# Hip max extension per stride
+- parameter: Left Hip Angles_MIN_stride
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Left Hip Angles, LFS, LFS]
+      truncate: true
+    - min:
+
+- parameter: Right Hip Angles_MIN_stride
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - eventMask: [Right Hip Angles, RFS, RFS]
+      truncate: true
+    - min:
+
+# Hip angular velocity at footstrike
+- parameter: Left Hip Angles_Velocity
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - lowpass: Left Hip Angles
+      extrapolate: 100
+      order: 6
+      cutoff: 12
+    - velocity:
+
+- parameter: Right Hip Angles_Velocity
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - lowpass: Right Hip Angles
+      extrapolate: 100
+      order: 6
+      cutoff: 12
+    - velocity:
+
+- parameter: Left Hip Angles_Velocity@LFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Hip Angles_Velocity@LFS
+
+- parameter: Right Hip Angles_Velocity@RFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Hip Angles_Velocity@RFS
+
+# Hip angular velocity at midstance
+- parameter: Left Hip Angles_Velocity@L_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Hip Angles_Velocity@L_MID_STANCE
+
+- parameter: Right Hip Angles_Velocity@R_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Hip Angles_Velocity@R_MID_STANCE
+
+# Hip angular velocity at toe off
+- parameter: Left Hip Angles_Velocity@LTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Hip Angles_Velocity@LTO
+
+- parameter: Right Hip Angles_Velocity@RTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Hip Angles_Velocity@RTO
+
+# Hip angular velocity at ankle cross
+- parameter: Left Hip Angles_Velocity@L_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Hip Angles_Velocity@L_Ankle_cross
+
+- parameter: Right Hip Angles_Velocity@R_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Hip Angles_Velocity@R_Ankle_cross
+
+# Hip flexion angular velocity (slope)
+#/EXPRESSION=(METRIC::MAX::&::side& Hip Angles@&::side_short&_peak_hip_flexion_cycle_&::side_short&_CYCLE - METRIC::TOEOFF::&::side& Hip Angles@&::side_short&TO_&::side_short&_CYCLE) / METRIC::TIMING::&::side_short&TO_to_&::side_short&_peak_hip_flexion_&::side_short&_CYCLE
+#(Left Hip Angles_MAX_stance - Left Hip Angles@LTO) / LTO_to_L_peak_hip_flexion_L_CYCLE
+- parameter: Left_hip_ang_vel_slope
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - subtract: [Left Hip Angles_MAX_stance.x, Left Hip Angles.x@LTO]
+    - divide: [$prev, LTO_to_L_peak_hip_flexion_L_CYCLE]
+
+- parameter: Right_hip_ang_vel_slope
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - subtract: [Right Hip Angles_MAX_stance.x, Right Hip Angles.x@RTO]
+    - divide: [$prev, RTO_to_R_peak_hip_flexion_R_CYCLE]
+
+# Thigh angle at max stride angle
+- parameter: Left Thigh Angles
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: [LeftUpLeg_model]
+      space: VirtualLab
+    - multiply: [$prev, [1, -1,-1]]
+
+- parameter: Right Thigh Angles
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - jointAngle: [RightUpLeg_model]
+      space: VirtualLab
+
+- parameter: Left Thigh Angles@Left Stride Angle_max
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Thigh Angles@L_stride_angle_max
+  
+- parameter: Right Thigh Angles@Right Stride Angle_max
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Thigh Angles@R_stride_angle_max
+  
+  # Thigh angle at max knee flexion
+- parameter: Left Thigh Angles@L_peak_knee_flexion
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Thigh Angles@L_peak_knee_flex
+
+- parameter: Right Thigh Angles@R_peak_knee_flexion
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Thigh Angles@R_peak_knee_flex
+
+# Knee to knee separation distance at mistance
+- parameter: Knees_distance_left_stride@L_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftLeg_model => l_knee
+      space: VirtualLab
+    - segment: RightLeg_model => r_knee
+      space: VirtualLab
+    - subtract: [r_knee, l_knee]
+    - convert:
+      from: mm
+      to: m
+      output: knee_dist
+    - import: knee_dist@L_MID_STANCE
+
+- parameter: Knees_distance_right_stride@R_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftLeg_model => l_knee
+      space: VirtualLab
+    - segment: RightLeg_model => r_knee
+      space: VirtualLab
+    - subtract: [l_knee, r_knee]
+    - convert:
+      from: mm
+      to: m
+      output: knee_dist
+    - import: knee_dist@R_MID_STANCE
+
+# Knee flexion at toe off
+- parameter: Left Knee Angles@LTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Knee Angles@LTO
+
+- parameter: Right Knee Angles@RTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Knee Angles@RTO
+
+# Knee flexion at ankle cross
+- parameter: Left Knee Angles@L_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Knee Angles@L_Ankle_cross
+
+- parameter: Right Knee Angles@R_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Knee Angles@R_Ankle_cross
+
+# Knee angular velocity at footstrike
+- parameter: Left Knee Angles_Velocity@LFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Knee Angles_Velocity@LFS
+  
+- parameter: Right Knee Angles_Velocity@RFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Knee Angles_Velocity@RFS
+  
+# Knee angular velocity at midstance
+- parameter: Left Knee Angles_Velocity@L_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Knee Angles_Velocity@L_MID_STANCE
+  
+- parameter: Right Knee Angles_Velocity@R_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Knee Angles_Velocity@R_MID_STANCE
+  
+# Knee angular velocity at toe off
+- parameter: Left Knee Angles_Velocity@LTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Knee Angles_Velocity@LTO
+  
+- parameter: Right Knee Angles_Velocity@RTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Knee Angles_Velocity@RTO
+  
+# Knee angular velocity at ankle cross
+- parameter: Left Knee Angles_Velocity@L_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Knee Angles_Velocity@L_Ankle_cross
+  
+- parameter: Right Knee Angles_Velocity@R_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Knee Angles_Velocity@R_Ankle_cross
+
+# Shank angular velocity at footstrike
+- parameter: Left Shank wrt VLab Ang Vel@LFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - angularVelocity: [VirtualLabSegment, LeftLeg_model, VirtualLabSegment, LeftLeg_model]
+    - lowpass:
+      cutoff: 10
+      extrapolate: 5
+    - multiply: [$prev, [1, -1, -1]]
+      output: leg_ang_vel
+    - import: leg_ang_vel@LFS
+
+- parameter: Right Shank wrt VLab Ang Vel@RFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - angularVelocity: [VirtualLabSegment, RightLeg_model, VirtualLabSegment, RightLeg_model]
+    - lowpass:
+      cutoff: 10
+      extrapolate: 5
+      output: leg_ang_vel
+    - import: leg_ang_vel@RFS
+
+# Shank angular velocity at ankle cross
+- parameter: Left Shank wrt VLab Ang Vel@L_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - angularVelocity: [VirtualLabSegment, LeftLeg_model, VirtualLabSegment, LeftLeg_model]
+    - lowpass:
+      cutoff: 10
+      extrapolate: 5
+    - multiply: [$prev, [1, -1, -1]]
+      output: leg_ang_vel
+    - import: leg_ang_vel@L_Ankle_cross
+
+- parameter: Right Shank wrt VLab Ang Vel@R_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - angularVelocity: [VirtualLabSegment, RightLeg_model, VirtualLabSegment, RightLeg_model]
+    - lowpass:
+      cutoff: 10
+      extrapolate: 5
+      output: leg_ang_vel
+    - import: leg_ang_vel@R_Ankle_cross
+
+# Ankle angular velocity at footstrike
+- parameter: Left Ankle Angles_Velocity@LFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Ankle Angles_Velocity@LFS
+
+- parameter: Right Ankle Angles_Velocity@RFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Ankle Angles_Velocity@RFS
+
+# Ankle angular velocity at midstance
+- parameter: Left Ankle Angles_Velocity@L_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Ankle Angles_Velocity@L_MID_STANCE
+
+- parameter: Right Ankle Angles_Velocity@R_MID_STANCE
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Ankle Angles_Velocity@R_MID_STANCE
+
+# Ankle angular velocity at toe off
+- parameter: Left Ankle Angles_Velocity@LTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Ankle Angles_Velocity@LTO
+
+- parameter: Right Ankle Angles_Velocity@RTO
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Ankle Angles_Velocity@RTO
+
+# Ankle angular velocity at ankle cross
+- parameter: Left Ankle Angles_Velocity@L_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Left Ankle Angles_Velocity@L_Ankle_cross
+
+- parameter: Right Ankle Angles_Velocity@R_Ankle_cross
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - import: Right Ankle Angles_Velocity@R_Ankle_cross
+
+# Foot distance to body COG at footstrike
+# using pelvis origin instead of body COG
+- parameter: Left_Foot_Distance_to_body_COG@LFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: LeftFoot_model => foot
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [foot, pelvis]
+    - convert:
+      from: mm
+      to: m
+      output: foot_pelvis_dist
+    - import: foot_pelvis_dist@LFS
+
+- parameter: Right_Foot_Distance_to_body_COG@RFS
+  where:
+    name: ^(Gait|Run|Walk)*
+  steps:
+    - segment: RightFoot_model => foot
+      space: VirtualLab
+    - segment: Hips_model => pelvis
+      space: VirtualLab
+    - subtract: [foot, pelvis]
+    - convert:
+      from: mm
+      to: m
+      output: foot_pelvis_dist
+    - import: foot_pelvis_dist@RFS
+
+# Kinetics
+- parameter: Left GRF@Left_peak_landing_GRF
+  where:
+    name: ^(Gait|Run|Walk)*
+    force: left
+  steps:
+    - import: Left GRF@Left_peak_landing_GRF
+
+- parameter: Left GRF@Left_peak_concentric_GRF
+  where:
+    name: ^(Gait|Run|Walk)*
+    force: left
+  steps:
+    - import: Left GRF@Left_peak_concentric_GRF
+
+- parameter: Right GRF@Right_peak_landing_GRF
+  where:
+    name: ^(Gait|Run|Walk)*
+    force: right
+  steps:
+    - import: Right GRF@Right_peak_landing_GRF
+
+- parameter: Right GRF@Right_peak_concentric_GRF
+  where:
+    name: ^(Gait|Run|Walk)*
+    force: right
+  steps:
+    - import: Right GRF@Right_peak_concentric_GRF
