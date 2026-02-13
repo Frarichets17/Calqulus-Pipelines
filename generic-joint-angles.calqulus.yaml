@@ -13,5 +13,5 @@
 
 # Order of nodes is not important. They can be placed anywhere in YAML file.
 
-- template: /templates/generic/generic.calquls.yaml
+- template: /templates/generic/generic.cas.yaml
 
