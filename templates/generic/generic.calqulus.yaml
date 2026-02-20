@@ -33,6 +33,13 @@
 #         Same manual events for all graph types (Rstart, Rend, Lstart, Lend)
 #         Different manual events for all graph types (Rstart, RON, Rend, ROFF, Lstart, LON, Lend, LOFF)
 
+- event: LeftKneeMaxFlex
+  set: left
+  steps:
+    - import: Left Knee Flex           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]           # limita al ciclo corrente
+    - eventAt: max 
+    
 # LeftPlotStart ------------
 - event: LeftPlotStart
   set: left
@@ -1631,12 +1638,7 @@
   steps:
    - mean: Right GRF
 
-- event: LeftKneeMaxFlex
-  set: left
-  steps:
-    - import: Left Knee Flex           # importa la serie di flessione del ginocchio
-    - eventMask: [BOF, EOF]           # limita al ciclo corrente
-    - eventAt: max                     # prende il frame in cui il valore è massimo
+                    # prende il frame in cui il valore è massimo
 - event: BOF
   steps:
     - if: exists(LeftKneeMaxFlex)
