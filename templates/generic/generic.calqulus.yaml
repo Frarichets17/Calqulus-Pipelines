@@ -1637,3 +1637,8 @@
     - import: Left Knee Flex           # importa la serie di flessione del ginocchio
     - eventMask: [BOF, EOF]           # limita al ciclo corrente
     - eventAt: max                     # prende il frame in cui il valore è massimo
+- event: BOF
+  steps:
+    - if: exists(LeftKneeMaxFlex)
+      then: LeftKneeMaxFlex
+      else: LeftPlotStart_prio_1  # fallback su quello originale
