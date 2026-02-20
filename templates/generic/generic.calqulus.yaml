@@ -43,14 +43,13 @@
 - event: LOFF
   steps:
     - import: Left Knee Angles           # importa la serie di flessione del ginocchio
-    - eventMask: [BOF, EOF]           # limita al ciclo corrente
-    - eventAt: [$prev.x] 
+    - eventMask: [$prev.x]           # limita al ciclo corrente 
 
 - event: ROFF
   steps:
     - import: Right Knee Angles           # importa la serie di flessione del ginocchio
-    - eventMask: [BOF, EOF]           # limita al ciclo corrente
-    - eventAt: [$prev.x] 
+    - eventMask: [$prev.x]          # limita al ciclo corrente
+ 
 
 # LeftPlotStart ------------
 - event: LeftPlotStart
