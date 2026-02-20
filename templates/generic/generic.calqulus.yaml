@@ -414,7 +414,7 @@
     - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
     - max: $prev.x
 
-- parameter: Left Knee Flex max
+- parameter: Left Knee Flex max dynamic
   where:
     name: '!Dynamic*'
   set: left
