@@ -37,7 +37,6 @@
 - event: LON
   steps:
     - import: [30]
-
 - event: RON
   steps:
     - import: [30]
@@ -46,7 +45,7 @@
     - subtract: [$length, 100]
 - event: ROFF
   steps:
-    - subtract: [$length, 100]
+    - subtract: [$length, 50]
 
 # LeftPlotStart ------------
 - event: LeftPlotStart
