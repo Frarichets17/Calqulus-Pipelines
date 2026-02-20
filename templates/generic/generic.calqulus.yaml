@@ -43,10 +43,10 @@
     - import: [30]
 - event: LOFF
   steps:
-    - subtract: [$length, 50]
+    - subtract: [$length, 100]
 - event: ROFF
   steps:
-    - subtract: [$length, 50]
+    - subtract: [$length, 100]
 
 # LeftPlotStart ------------
 - event: LeftPlotStart
