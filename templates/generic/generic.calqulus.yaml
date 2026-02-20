@@ -414,6 +414,15 @@
     - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
     - max: $prev.x
 
+- parameter: Left Knee Flex max
+  where:
+    name: '!Dynamic*'
+  set: left
+  steps:
+    - import: Left Knee Angles
+    - eventMask: [$prev, LeftPlotStart, LeftPlotEnd]
+    - max: $prev.x
+
 - parameter: Left Knee Flex min
   where:
     name: '!Static*'
@@ -1622,8 +1631,3 @@
   steps:
    - mean: Right GRF
 
-- event: LeftKneeFlex_max
-  set: left
-  steps:
-    - import: Left Knee Flex Max        # il parametro da cui prendere il massimo
-    - eventAt: max: 
