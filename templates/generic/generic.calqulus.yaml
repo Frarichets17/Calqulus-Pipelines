@@ -46,6 +46,19 @@
     - eventMask: [BOF, EOF]           # limita al ciclo corrente
     - eventAt: max 
 
+- event: Lend
+  set: left
+  steps:
+    - import: Left Knee Flex           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]           # limita al ciclo corrente
+    - eventAt: min 
+- event: Rend
+  set: right
+  steps:
+    - import: Right Knee Flex           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]           # limita al ciclo corrente
+    - eventAt: min 
+
 # LeftPlotStart ------------
 - event: LeftPlotStart
   set: left
