@@ -24,6 +24,19 @@
   steps:
     - subtract: [$length, 1]
 
+- event: LeftKneeFlex_max
+  set: left
+  steps:
+    - import: Left Knee Angles        # il parametro da cui prendere il massimo
+    - eventMask: [BOF, EOF]   # opzionale, limita il range
+    - eventAt: max: $prev.x           # crea un evento nel frame del massimo
+
+- event: BOF
+  steps:
+    - if: exists(LeftKneeFlex_max)
+      then: LeftKneeFlex_max
+      else: LeftPlotStart_prio_1  # fallback su quello originale
+
 # `Graph event mode`:
 #     No events (Default) [Full measurement]:
 #         BOF and EOF for all graph types
