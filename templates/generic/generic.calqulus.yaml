@@ -28,6 +28,7 @@
   set: left
   steps:
     - import: Left Knee Angles        # il parametro da cui prendere il massimo
+    - eventAt: max: $prev.x           # crea un evento nel frame del massimo
 
 
 # `Graph event mode`:
