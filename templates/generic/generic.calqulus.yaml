@@ -41,11 +41,18 @@
   steps:
     - import: [30]
 - event: LOFF
+  set: left
   steps:
-    - subtract: [$length, 100]
+    - import: Left Knee Flex           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]           # limita al ciclo corrente
+    - eventAt: max 
+
 - event: ROFF
+  set: right
   steps:
-    - subtract: [$length, 50]
+    - import: Right Knee Flex           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]           # limita al ciclo corrente
+    - eventAt: max 
 
 # LeftPlotStart ------------
 - event: LeftPlotStart
