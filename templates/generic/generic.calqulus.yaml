@@ -1631,3 +1631,9 @@
   steps:
    - mean: Right GRF
 
+- event: LeftKneeMaxFlex
+  set: left
+  steps:
+    - import: Left Knee Flex           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]           # limita al ciclo corrente
+    - eventAt: max                     # prende il frame in cui il valore è massimo
