@@ -33,13 +33,13 @@
 #         Same manual events for all graph types (Rstart, Rend, Lstart, Lend)
 #         Different manual events for all graph types (Rstart, RON, Rend, ROFF, Lstart, LON, Lend, LOFF)
 
-- event: LON
+- event: Lstart
   set: left
   steps:
     - import: Left Knee Flex           # importa la serie di flessione del ginocchio
     - eventMask: [BOF, EOF]           # limita al ciclo corrente
     - eventAt: max 
-- event: RON
+- event: Rstart
   set: right
   steps:
     - import: Right Knee Flex           # importa la serie di flessione del ginocchio
