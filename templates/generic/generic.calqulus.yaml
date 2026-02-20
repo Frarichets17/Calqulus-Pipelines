@@ -40,15 +40,30 @@
 - event: RON
   steps:
     - import: [30]
+
+- parameter: Left Knee Angles_max
+  set: left
+  steps:
+    - eventMask: [Left Knee Angles, BOF, EOF]
+    - max: 
+
+- parameter: Right Knee Angles_max
+  set: right
+  steps:
+    - eventMask: [Right Knee Angles, BOF, EOF]
+    - max: 
+
 - event: LOFF
   steps:
-    - import: Left Knee Angles           # importa la serie di flessione del ginocchio
-    - eventMask: [$prev.x]           # limita al ciclo corrente 
+    - import: Left Knee Angles_max.x           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]           # limita al ciclo corrente 
+    - output: lmaxknee_1
 
 - event: ROFF
   steps:
-    - import: Right Knee Angles           # importa la serie di flessione del ginocchio
-    - eventMask: [$prev.x]          # limita al ciclo corrente
+    - import: Right Knee Angles_max.x           # importa la serie di flessione del ginocchio
+    - eventMask: [BOF, EOF]          # limita al ciclo corrente
+    - output: rmaxknee_1
  
 
 # LeftPlotStart ------------
