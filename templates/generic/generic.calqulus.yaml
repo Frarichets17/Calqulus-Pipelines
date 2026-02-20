@@ -24,13 +24,6 @@
   steps:
     - subtract: [$length, 1]
 
-- event: LeftKneeFlex_max
-  set: left
-  steps:
-    - import: Left Knee Angles        # il parametro da cui prendere il massimo
-    - eventMask: [BOF, EOF]   # opzionale, limita il range
-    - eventAt: max: $prev.x           # crea un evento nel frame del massimo
-
 
 
 # `Graph event mode`:
