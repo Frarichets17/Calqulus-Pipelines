@@ -24,8 +24,6 @@
   steps:
     - subtract: [$length, 1]
 
-
-
 # `Graph event mode`:
 #     No events (Default) [Full measurement]:
 #         BOF and EOF for all graph types
@@ -1285,13 +1283,6 @@
   steps:
     - subtract: [Head Forward Tilt max, Head Forward Tilt min]
 
-
-- event: LeftKneeFlex_max
-  set: left
-  steps:
-    - import: Left Knee Angles        # il parametro da cui prendere il massimo
-    - eventAt: max: $prev.x           # crea un evento nel frame del massimo
-
 # Kinetics ---
 # Left
 - parameter: Left Hip Moment_max
@@ -1630,3 +1621,9 @@
   set: right
   steps:
    - mean: Right GRF
+   
+- event: LeftKneeFlex_max
+  set: left
+  steps:
+    - import: Left Knee Angles        # il parametro da cui prendere il massimo
+    - eventAt: max: $prev.x           # crea un evento nel frame del massimo
