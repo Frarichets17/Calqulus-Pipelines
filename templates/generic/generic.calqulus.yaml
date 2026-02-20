@@ -34,6 +34,20 @@
 #         Different manual events for all graph types (Rstart, RON, Rend, ROFF, Lstart, LON, Lend, LOFF)
 
 
+- event: LON
+  steps:
+    - import: [30]
+
+- event: RON
+  steps:
+    - import: [30]
+- event: LOFF
+  steps:
+    - subtract: [$length, 50]
+- event: ROFF
+  steps:
+    - subtract: [$length, 50]
+
 # LeftPlotStart ------------
 - event: LeftPlotStart
   set: left
