@@ -24,11 +24,6 @@
   steps:
     - subtract: [$length, 1]
 
-- event: LeftKneeFlex_max
-  set: left
-  steps:
-    - import: Left Knee Angles        # il parametro da cui prendere il massimo
-    - eventAt: max: $prev.x           # crea un evento nel frame del massimo
 
 
 # `Graph event mode`:
@@ -1289,6 +1284,13 @@
   set: left
   steps:
     - subtract: [Head Forward Tilt max, Head Forward Tilt min]
+
+
+- event: LeftKneeFlex_max
+  set: left
+  steps:
+    - import: Left Knee Angles        # il parametro da cui prendere il massimo
+    - eventAt: max: $prev.x           # crea un evento nel frame del massimo
 
 # Kinetics ---
 # Left
