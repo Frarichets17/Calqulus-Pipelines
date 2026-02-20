@@ -1621,9 +1621,10 @@
   set: right
   steps:
    - mean: Right GRF
-   
+
 - event: LeftKneeFlex_max
   set: left
   steps:
-    - import: Left Knee Angles        # il parametro da cui prendere il massimo
+    - import: Left Knee Flex Max        # il parametro da cui prendere il massimo
+    - eventMask: [BOF, EOF]   # opzionale, limita il range
     - eventAt: max: $prev.x           # crea un evento nel frame del massimo
