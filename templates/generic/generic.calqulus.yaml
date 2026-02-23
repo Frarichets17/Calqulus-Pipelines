@@ -56,7 +56,7 @@
 - event: LOFF
   set: left 
   steps:
-    - import: [Left Knee Angles_max.x]           # importa la serie di flessione del ginocchio
+    - import: Left Knee Angles_max.x           # importa la serie di flessione del ginocchio
     - eventMask: [Left Knee Angles, BOF, EOF]           # limita al ciclo corrente 
 
 - event: ROFF
