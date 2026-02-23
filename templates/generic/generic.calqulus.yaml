@@ -57,13 +57,13 @@
   steps:
     - import: Left Knee Angles_max.x           # importa la serie di flessione del ginocchio
     - eventMask: [Left Knee Angles, BOF, EOF]           # limita al ciclo corrente 
-    #- output: lmaxknee_1
+    - output: lmaxknee_1
 
 - event: ROFF
   steps:
     - import: Right Knee Angles_max.x           # importa la serie di flessione del ginocchio
     - eventMask: [Right Knee Angles, BOF, EOF]          # limita al ciclo corrente
-    #- output: rmaxknee_1
+    - output: rmaxknee_1
  
 
 # LeftPlotStart ------------
