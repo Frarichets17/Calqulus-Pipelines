@@ -36,10 +36,10 @@
 
 - event: LON
   steps:
-    - import: [30]
+    - import: [1]
 - event: RON
   steps:
-    - import: [30]
+    - import: [1]
 
 - parameter: Left Knee Angles_max
   set: left
