@@ -65,6 +65,15 @@
     - import: [Right Knee Angles_max.x]           # importa la serie di flessione del ginocchio
     - eventMask: [Right Knee Angles, BOF, EOF]          # limita al ciclo corrente
  
+- event: TOP_entered
+  steps:
+    - concatenate: [LON, RON, LOFF, ROFF]
+
+- event: TOP_calqulus
+  steps:
+  - if: "!empty(TOP_entered)"
+    then: TOP_entered
+    else: TOP_measured
 
 # LeftPlotStart ------------
 - event: LeftPlotStart
