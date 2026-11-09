@@ -23,7 +23,7 @@
       to: m
     - lowpass:
       extrapolate: 100
-      cutoff: 100
+      cutoff: 50
       export: LFT_DistEndPos
     - velocity:
     # - lowpass:
@@ -42,7 +42,7 @@
       to: m
     - lowpass:
       extrapolate: 100
-      cutoff: 100
+      cutoff: 50
       export: RFT_DistEndPos
     - velocity:
     # - lowpass:
@@ -60,7 +60,7 @@
 # ----
 - parameter: KinematicsLowpassCutoffFq
   steps:
-    - import: [100]
+    - import: [50]
 
 - parameter: KinematicsLowpassExtrapolate
   steps:
